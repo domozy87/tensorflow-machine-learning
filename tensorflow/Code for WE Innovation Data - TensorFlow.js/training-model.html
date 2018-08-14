@@ -1,0 +1,180 @@
+<html>
+  <head>
+	<link rel="stylesheet" type="text/css" href="style.css">
+
+    <!-- Load TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.11.1"> </script>
+
+	<!-- Load d3.js for reading data-->
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+
+	<!-- Load Chart.js -->
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"> </script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"> </script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"> </script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"> </script>
+
+	<!-- Load script.js -->
+	<script src="./script.js"> </script>
+	<script src="./script_tensorflow.js"> </script>
+
+
+
+    <!-- Place your code in the script tag below. You can also use an external .js file -->
+    <script>
+
+		//var tf = require('@tensorflow/tfjs');
+		//var util = require('util')
+
+		/**
+		 * Async function To train a model using tensorflow.js
+		 */
+
+		async function train() {
+
+			/*
+			const input_file = document.getElementById('train-data');
+
+			console.log(input_file);
+			console.log(input_file.files[0]);
+			//var myfile = input_file.files[0];
+			var file = input_file.files[0];
+			*/
+
+			var nb_samples = 0;
+			var training_data = [];
+			var testing_data = [];
+			var training_data_2D = [];
+			var testing_data_2D = [];
+
+
+			//var input_file_name = "./data/TrainDataset.csv";
+			//var input_file_name = "./data/TestDataset2.csv";
+			//var input_file_name = "./data/sharp-to-color-TRAIN.csv";
+            var input_file_name = "./data/career-matching-Train.csv";
+
+			//============================================================================================
+			//	1. 	Prepare the training data (including the features extraction if needed)
+			//============================================================================================
+			//*
+			d3.csv(input_file_name, function(data){
+
+				console.log(data);
+
+				for (var ind = 0; ind < data.length; ++ind) {
+					//console.log(data[ind].data);
+					if ((ind % 2) == 0) {
+						training_data.push(((data[ind].data).trim()).split(" "));
+					}else{
+						testing_data.push(((data[ind].data).trim()).split(" "));
+					}
+				}
+
+				//console.log(training_data);
+				//console.log(testing_data);
+
+				//---convert from string to numeric number
+				training_data_2D = training_data.map(function(elem) {	//more generic, it works in any dimension
+					var callee = arguments.callee;
+					return elem instanceof Array ? elem.map(function(elem2) { return callee(elem2); })
+												: parseFloat(elem);
+				})
+
+				testing_data_2D = testing_data.map(function(elem) {	//more generic, it works in any dimension
+					var callee = arguments.callee;
+					return elem instanceof Array ? elem.map(function(elem2) { return callee(elem2); })
+												: parseFloat(elem);
+				})
+
+				//console.log(training_data_2D);
+				//console.log(testing_data_2D);
+				//console.log(""+tf.tensor2d(training_data_2D));
+				//console.log(""+tf.tensor2d(testing_data_2D));
+
+				var training_data_tensor = tf.tensor2d(training_data_2D);
+				var target_data_tensor = tf.tensor2d(testing_data_2D);
+
+				console.log("Before: Training dataset is \n"+ training_data_tensor +"\n");	//error could be occurred here !
+				console.log("Before: Target dataset is \n"+ target_data_tensor +"\n");	//error could be occurred here !
+
+				//const training_data1 = tf.tensor2d([[0,0,0,0,0],[0,0,0,0,1],[0,0,0,1,0],[0,0,0,1,1],[0,0,1,0,0],[0,0,1,0,1],[0,0,1,1,0],[0,0,1,1,1],[0,1,0,0,0],[0,1,0,0,1],[0,1,0,1,0],[0,1,0,1,1],[0,1,1,0,0],[0,1,1,0,1],[0,1,1,1,0],[0,1,1,1,1],[1,0,0,0,0]]);
+				//const target_data1 = tf.tensor2d([[0,0,0,0],[0,0,0,1],[0,0,1,0],[0,1,0,0],[1,0,0,0],[0,0,0,1],[0,0,1,0],[0,1,0,0],[1,0,0,0],[0,0,0,1],[0,0,1,0],[0,1,0,0],[1,0,0,0],[0,0,0,1],[0,0,1,0],[0,1,0,0],[1,0,0,0]]);
+
+				//console.log("Training dataset is \n"+ training_data1 +"\n");	//error could be occurred here !
+				//console.log("Target dataset is \n"+ target_data1 +"\n");	//error could be occurred here !
+
+
+				//============================================================================================
+				//	2. 	Start training the model
+				//============================================================================================
+				//*
+				var MAXEPOCHES = eval(document.getElementById('nb-epoch').value);
+				const TOTAL_SAMPLES = data.length / 2;
+				var SOURCE_DIMENSIONS = training_data_2D[0].length;
+				var TARGET_DIMENSIONS = testing_data_2D[0].length;
+				var FLAG_SAVE_MODEL = eval(document.frm1.save_model.value);
+				//console.log("FLAG_SAVE_MODEL here= "+FLAG_SAVE_MODEL);
+
+				//*
+				var promise_obj_train = train_tensor(training_data_tensor, target_data_tensor, MAXEPOCHES, TOTAL_SAMPLES, SOURCE_DIMENSIONS, TARGET_DIMENSIONS, FLAG_SAVE_MODEL);	//call the function from 'script_tensorflow.js'
+
+				promise_obj_train.then(function(result) {
+					//console.log("Success!");
+					console.log(result);
+					console.log(result.startTimeString);
+					console.log(result.endTimeString);
+					console.log(result.trainDurationString);
+					console.log(result.predictedResult);
+				}).catch(function(error) {
+					console.log("Failed!", error);
+				})
+				//*/
+
+			});
+		}
+
+    </script>
+  </head>
+
+  <body>
+	<form name="frm1" enctype="multipart/form-data" action="#">
+		<table>
+
+			<tr>
+				<td>Number of Epochs: </td>
+				<td colspan=2><input name="nb-epoch" id="nb-epoch" type="text" placeholder="Max Epochs : int" value="20"/> Epochs</td>
+			</tr>
+			<tr>
+				<td>Do you want to save the trained model? </td>
+				<td> <input id="myRadio" name="save_model" type="radio" value="true" /> YES </td>
+				<td> <input id="myRadio" name="save_model" type="radio" value="false" checked/> NO </td>
+			</tr>
+			<tr>
+				<td colspan=3>
+					<!--<button onclick="alert('test');"> Click to test Alert </button>	-->
+					<button onclick="train(); return false;"><h3>--- Click me to train the model ---</h3></button>
+					<!--<button onclick="test();"> Click me to test the model</button>		-->
+				</td>
+			</tr>
+		</table>
+	</form>
+	<p></p>
+	<h3>Loss Vs. Epoch (For Training Dataset)</h3>
+	<!-- Place your code in the script tag below. You can also use an external .js file -->
+	<div class="fixed-height-chart">
+		<canvas id="myChart-loss-vs-epochs" ></canvas>
+	</div>
+	<p></p>
+	<h3>Individual or Sequence Correct Rates Vs. Epoch (For Training Dataset)</h3>
+	<!-- Place your code in the script tag below. You can also use an external .js file -->
+	<div class="fixed-height-chart">
+		<canvas id="myChart-correctRate-vs-epochs" ></canvas>
+	</div>
+
+
+
+
+  </body>
+
+</html>

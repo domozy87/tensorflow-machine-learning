@@ -1,0 +1,50 @@
+body{
+  margin: 3rem ;
+  font-family: "roboto";
+}
+
+.fixed-height-chart{
+  height: 250px;
+  width: 500px;
+  border: 1px solid black;
+}
+
+#rcorners1 {
+    border-radius: 25px;
+    background: #73AD21;
+    padding: 20px;     
+    height: 150px;    
+}
+
+#rcorners2 {
+    border-radius: 25px;
+    border: 2px solid #73AD21;
+    padding: 20px;     
+    height: 150px;    
+}
+
+#rcorners3 {
+    border-radius: 25px;
+    background: url(paper.gif);
+    background-position: left top;
+    background-repeat: repeat;
+    padding: 20px; 
+    width: 200px;
+    height: 150px;    
+}
+
+input[type=file] {
+  border: 1px dotted #999;
+  border-radius: 0;
+
+  -webkit-appearance: none;
+}
+
+.inputfile {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}

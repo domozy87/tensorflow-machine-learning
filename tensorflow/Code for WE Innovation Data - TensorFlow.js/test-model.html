@@ -1,0 +1,227 @@
+<html>
+  <head>
+	<link rel="stylesheet" type="text/css" href="style.css">
+
+    <!-- Load TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@0.11.1"> </script>
+
+	<!-- Load d3.js for reading data-->
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+
+	<!-- Load Chart.js -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"> </script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"> </script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"> </script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"> </script>
+
+	<!-- Load script.js -->
+	<script src="./script.js"> </script>
+	<script src="./script_tensorflow.js"> </script>
+
+
+
+    <!-- Place your code in the script tag below. You can also use an external .js file -->
+    <script>
+		/**
+		 * Async function To test a model using a full dataset
+		 */
+		async function test_using_a_full_dataset() {
+
+			//var input_file_name = "./data/TestDataset1.csv";
+			//const jsonUpload 	= "./model/model-tensorFlow-20_epoch.json";
+			//const weightsUpload	= "./model/model-tensorFlow-20_epoch.weights.bin";
+
+			// var input_file_name = "./data/sharp-to-color-TRAIN.csv";
+			// //const jsonUpload 	= "./model/sharp-to-color-model-tensorFlow-50_epoch.json";
+			// //const weightsUpload	= "./model/sharp-to-color-model-tensorFlow-50_epoch.weights.bin";
+			// const jsonUpload 	= "./model/model-tensorFlow-25_epoch.json";
+			// const weightsUpload	= "./model/model-tensorFlow-25_epoch.weights.bin";
+
+            //var input_file_name = "./data/career-matching-Train.csv";
+            var input_file_name = "./data/career1.csv";
+            const jsonUpload 	= "./model/model-tensorFlow-20_epoch.json";
+            const weightsUpload	= "./model/model-tensorFlow-20_epoch.weights.bin";
+
+
+			//------------------------------------------------------------------------------------
+
+			//console.log(jsonUpload);
+			//console.log(weightsUpload);
+
+			var training_data = [];
+			var testing_data = [];
+			var training_data_2D = [];
+			var testing_data_2D = [];
+
+			//============================================================================================
+			//	1. 	Prepare the training data (including the features extraction if needed)
+			//============================================================================================
+			//*
+			d3.csv(input_file_name, function(data){
+
+				//console.log(data);
+
+				for (var ind = 0; ind < data.length; ++ind) {
+					//console.log(data[ind].data);
+					if ((ind % 2) == 0) {
+						training_data.push(((data[ind].data).trim()).split(" "));
+					}else{
+						testing_data.push(((data[ind].data).trim()).split(" "));
+					}
+				}
+
+				console.log(training_data);
+				console.log(testing_data);
+
+				//---convert from string to numeric number
+				training_data_2D = training_data.map(function(elem) {	//more generic, it works in any dimension
+					var callee = arguments.callee;
+					return elem instanceof Array ? elem.map(function(elem2) { return callee(elem2); })
+												: parseFloat(elem);
+				})
+
+				testing_data_2D = testing_data.map(function(elem) {	//more generic, it works in any dimension
+					var callee = arguments.callee;
+					return elem instanceof Array ? elem.map(function(elem2) { return callee(elem2); })
+												: parseFloat(elem);
+				})
+
+				//console.log(training_data_2D);
+				//console.log(testing_data_2D);
+				//console.log(""+tf.tensor2d(training_data_2D));
+				//console.log(""+tf.tensor2d(testing_data_2D));
+
+				var training_data_tensor = tf.tensor2d(training_data_2D);
+				var target_data_tensor = tf.tensor2d(testing_data_2D);
+
+				console.log("Before: Training dataset is \n"+ training_data_tensor +"\n");	//error could be occurred here !
+				console.log("Before: Target dataset is \n"+ target_data_tensor +"\n");	//error could be occurred here !
+
+				//============================================================================================
+				//	2. 	Start testing the model
+				//============================================================================================
+
+				const test_sensor_data = training_data_tensor;
+
+				var predicted_result = test_tensor(jsonUpload, weightsUpload, test_sensor_data);		//call the function from 'script_tensorflow.js'
+				console.log(predicted_result);
+
+				predicted_result.then(function(result) {
+					console.log("Success!");
+					console.log("\n The predicted result is \n"+ result +"\n");
+					console.log("\n The predicted results after rounded is \n"+ tf.round(result) +"\n");
+
+					//---update HTML contents
+					document.getElementById("input-test-data").innerHTML = tf.round(test_sensor_data);
+					document.getElementById("output-result").innerHTML = tf.round(result);
+
+				}).catch(function(error) {
+					console.log("Failed!", error);
+				})
+
+			});
+		}
+
+
+
+
+		/**
+		 * Async function To test a model using a sample data
+		 */
+		async function test_using_a_sample(input_field) {
+
+			//const jsonUpload 	= "./model/model-tensorFlow-20_epoch.json";
+			//const weightsUpload	= "./model/model-tensorFlow-20_epoch.weights.bin";
+
+			//const jsonUpload 	= "./model/model-tensorFlow-25_epoch.json";
+			//const weightsUpload	= "./model/model-tensorFlow-25_epoch.weights.bin";
+            const jsonUpload 	= "./model/model-tensorFlow-20_epoch.json";
+            const weightsUpload	= "./model/model-tensorFlow-20_epoch.weights.bin";
+
+			//const test_sensor_data = tf.tensor2d([[0,0,0,0,1]]);	//initialize
+			const test_sensor_data = eval('tf.tensor2d([['+ document.getElementById(input_field).value + ']])');	//take the value from input text-field
+			//------------------------------------------------------------------------------------
+
+			console.log(jsonUpload);
+			console.log(weightsUpload);
+
+
+			var predicted_result = test_tensor(jsonUpload, weightsUpload, test_sensor_data);		//call the function from 'script_tensorflow.js'
+
+			predicted_result.then(function(result) {
+				console.log("Success!");
+				console.log("\n The input testing data is \n"+ test_sensor_data +"\n");
+				console.log("\n The predicted result is \n"+ result +"\n");
+				console.log("\n The predicted results after rounded is \n"+ tf.round(result) +"\n");
+
+				//---update HTML contents
+				//document.getElementById("output-sample").innerHTML = tf.round(result);	//display in terms of tensor2d
+				document.getElementById("output-sample").innerHTML = (Array.from((tf.round(result)).dataSync()));	//convert to normal array
+
+			}).catch(function(error) {
+				console.log("Failed!", error);
+			})
+		}
+
+
+    </script>
+  </head>
+
+  <body>
+	<p id="display-section"></p>
+	<form name="frm2" enctype="multipart/form-data" action="#">
+		<table border=0 id="rcorners2">
+			<tr>
+				<td style="width:100px;">Input testing data: </td>
+				<td id="input-test-data"></td>
+			</tr>
+			<tr><td colspan=2 align="center">&nbsp;</td></tr>
+			<tr>
+				<td>Output results: </td>
+				<td id="output-result"></td>
+			</tr>
+			<tr><td colspan=2 align="center">&nbsp;</td></tr>
+			<tr>
+				<td colspan=2 align="center">
+					<button onclick="test_using_a_full_dataset(); return false;"> Click me to test the trained model using a full dataset !</button>
+				</td>
+			</tr>
+		</table>
+
+		<p>&nbsp;</p>
+
+		<table border=0 id="rcorners1">
+			<tr>
+				<td>Input testing data: </td>
+				<td><input name="input-data" id="input-data" size="70" type="text" value="0,0,0,0,1"/></td>
+			</tr>
+			<tr><td colspan=2 align="center">&nbsp;</td></tr>
+			<tr>
+				<td>Predicted results (from model): </td>
+				<td id="output-sample"></td>
+			</tr>
+			<tr>
+				<td colspan=2 align="center">
+					<!--<button onclick="test_using_a_sample(eval('tf.tensor2d([[0,0,0,0,1]])'))"> Click me to test the trained model using a sample data !</button> -->
+					<button onclick="test_using_a_sample('input-data'); return false;"> Click me to test the trained model using a sample data !</button>
+				</td>
+			</tr>
+
+		</table>
+		<!--
+		<table border=0 id="rcorners2">
+			<tr>
+				<td>Json-upload: </td>
+				<td><input name="json-upload" id="json-upload" type="file" /></td>
+			</tr>
+			<tr>
+				<td>Weigths-upload:</td>
+				<td><input name="weights-upload" id="weights-upload" type="file" /></td>
+			</tr>
+		</table>
+		-->
+	</form>
+
+  </body>
+
+</html>
